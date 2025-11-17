@@ -1,31 +1,23 @@
 FROM --platform=i386 i386/debian:bookworm
 ARG DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get -y upgrade && \
-	apt-get install -y apt-utils bsdmainutils ca-certificates \
-	cowsay cpio cron curl dmidecode dmsetup g++ gcc gdbm-l10n git  \
-	hexedit  ifupdown init logrotate lsb-base lshw lua5.4 luajit lynx make \
-	nano netbase openssl procps python3 python3-cryptography \
-	python3-jinja2 python3-pip python3-scipy \
-	python3-six python3-yaml readline-common rsyslog sensible-utils \
-	ssh systemd systemd-sysv tasksel tasksel-data udev vim wget whiptail \
-	xxd iptables isc-dhcp-client isc-dhcp-common kmod less netcat-openbsd \
-  jq \
+RUN apt-get clean && apt-get update && apt-get -y upgrade
+ENV PATH /usr/local/go/bin:$PATH
+ENV GOLANG_VERSION 1.25.4
+RUN apt-get -y install apt-utils gcc \
+	python3 unzip \
+	fakeroot dbus base whiptail hexedit \
+	patch wamerican ucf manpages \
+	file luajit make lua5.4 dialog curl \
+	less cowsay netcat-openbsd wget \
+  gnupg2 jq \
   && apt-get install -y --no-install-recommends \
 		g++ \
 		gcc \
 		libc6-dev \
 		make \
 		pkg-config \
-	&& rm -rf /var/lib/apt/lists/* && apt-get clean;
-
-## via: https://github.com/docker-library/golang/blob/63f58b7160c9e82a88a7befcda362794b7d21750/1.25/bookworm/Dockerfile
-
-ENV PATH /usr/local/go/bin:$PATH
-
-ENV GOLANG_VERSION 1.25.4
-
-RUN set -eux; \
+	&& rm -rf /var/lib/apt/lists/* && apt-get clean && \
+	set -eux; \
 	now="$(date '+%s')"; \
 	arch="$(dpkg --print-architecture)"; arch="${arch##*-}"; \
 	url=; \
@@ -115,17 +107,9 @@ RUN set -eux; \
 # make sure our reproducibile timestamp is probably still correct (best-effort inline reproducibility test)
 	epoch="$(stat -c '%Y' /target/usr/local/go)"; \
 	[ "$SOURCE_DATE_EPOCH" = "$epoch" ]; \
-	find /target -newer /target/usr/local/go -exec sh -c 'ls -ld "$@" && exit "$#"' -- '{}' +
+	find /target -newer /target/usr/local/go -exec sh -c 'ls -ld "$@" && exit "$#"' -- '{}' + \
+	&& apt-get remove wget gnupg2  -y && apt-get autoremove  -y
 
-RUN set -eux; \
-	apt-get update; \
-	apt-get install -y --no-install-recommends \
-		g++ \
-		gcc \
-		libc6-dev \
-		make \
-		pkg-config \
-	&& rm -rf /var/lib/apt/lists/*;
 
 RUN mkdir -p /hyperledger && \
   cd /hyperledger && \
@@ -135,8 +119,6 @@ RUN mkdir -p /hyperledger && \
                                                                                                                                                 
 # Make a user, then copy over the /example directory
 RUN useradd -m user && echo "user:password" | chpasswd
-COPY --chown=user:user ./examples /home/user/examples
-RUN chmod -R +x  /home/user/examples/lua
 RUN echo 'root:password' | chpasswd
 USER user
 CMD [ "/bin/bash" ]
