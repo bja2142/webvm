@@ -3,13 +3,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get clean && apt-get update && apt-get -y upgrade
 ENV PATH /usr/local/go/bin:$PATH
 ENV GOLANG_VERSION 1.25.4
-RUN apt-get -y install apt-utils gcc \
-	python3 unzip \
-	fakeroot dbus base whiptail hexedit \
-	patch wamerican ucf manpages \
-	file luajit make lua5.4 dialog curl \
-	less cowsay netcat-openbsd wget \
-  gnupg2 jq \
+RUN apt-get -y install apt-utils beef bsdgames bsdmainutils ca-certificates \
+	cowsay cpio cron curl dmidecode dmsetup g++ gcc gdbm-l10n git  \
+	hexedit  ifupdown init logrotate lsb-base lshw lua5.4 luajit lynx make \
+	nano netbase nodejs openssl procps python3 python3-cryptography \
+	python3-jinja2 python3-numpy python3-pandas python3-pip python3-scipy \
+	python3-six python3-yaml readline-common rsyslog ruby sensible-utils \
+	ssh systemd systemd-sysv tasksel tasksel-data udev vim wget whiptail \
+	xxd iptables isc-dhcp-client isc-dhcp-common kmod less netcat-openbsd \
+  wget gnupg2 jq \
   && apt-get install -y --no-install-recommends \
 		g++ \
 		gcc \
