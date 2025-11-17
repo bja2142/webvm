@@ -112,15 +112,21 @@ RUN apt-get -y install apt-utils beef bsdgames bsdmainutils ca-certificates \
 	find /target -newer /target/usr/local/go -exec sh -c 'ls -ld "$@" && exit "$#"' -- '{}' + \
 	&& apt-get remove wget gnupg2  -y && apt-get autoremove  -y
 
+ENV TARGET=linux-amd64
+ENV RELEASE=webvm
+ENV PATH /usr/local/go/bin:/hyperledger/bin:$PATH
 
 RUN mkdir -p /hyperledger && \
   cd /hyperledger && \
-  curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && \
-  chmod +x install-fabric.sh && \
-  ./install-fabric.sh binary
+  git clone --depth 1 https://github.com/hyperledger/fabric.git && \
+  cd /hyperledger/fabric &&  bash ./ci/scripts/create_binary_package.sh && \
+  cp /hyperledger/fabric/release/linux-amd64/*.tar.gz /hyperledger && \
+	cd /hyperledger && rm -r /hyperledger/fabric  && go clean -cache && go clean -modcache && \
+	go clean && tar -xzf *.tar.gz  && rm *.tar.gz
                                                                                                                                                 
 # Make a user, then copy over the /example directory
 RUN useradd -m user && echo "user:password" | chpasswd
 RUN echo 'root:password' | chpasswd
 USER user
 CMD [ "/bin/bash" ]
+
