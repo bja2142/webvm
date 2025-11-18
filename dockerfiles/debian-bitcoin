@@ -6,7 +6,8 @@ RUN apt-get -y install apt-utils gcc \
 	fakeroot dbus base whiptail hexedit \
 	patch wamerican ucf manpages \
 	file git luajit make lua5.4 dialog curl \
-	less cowsay netcat-openbsd && apt-get install -y build-essential cmake pkgconf python3 \
+	less cowsay netcat-openbsd && \
+	apt-get install -y build-essential cmake pkgconf python3 \
 	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto  && \
 	mkdir -p /bitcoin && cd /bitcoin && \
 	git clone --depth 1 https://github.com/bitcoin/bitcoin.git && \
@@ -18,10 +19,11 @@ RUN apt-get -y install apt-utils gcc \
 	mkdir /tmplibs && \
 	find / -name "*bitcoin*" -type f | egrep -v man1 | while read fn; do ldd $fn; done | grep '/lib/i386-linux-gnu/' | cut -d' ' -f3 | sort | uniq | \
 	while read libfn; do cp $libfn /tmplibs; done ; \
-	apt-get remove -y build-essential cmake pkgconf  \
+	apt-get remove -y build-essential gcc cmake pkgconf  \
 	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto \
-	patch make git unzip && apt-get -y autoremove && \
-	mv /tmplibs/* /lib/i386-linux-gnu/ && rm -r /tmplibs
+	patch make git unzip && apt-get -y autoremove --purge && \
+	mv /tmplibs/* /lib/i386-linux-gnu/ && rm -r /tmplibs && \
+	ap-get clean -y
 
 
 RUN useradd -m user && echo "user:password" | chpasswd
