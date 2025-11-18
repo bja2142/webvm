@@ -8,7 +8,7 @@ RUN apt-get -y install apt-utils gcc \
 	file git luajit make lua5.4 dialog curl \
 	less cowsay netcat-openbsd
 RUN apt-get install -y build-essential cmake pkgconf python3 \
-	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto && \
+	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto --no-install-recommends && \
 	mkdir -p /bitcoin && cd /bitcoin && \
 	git clone --depth 1 https://github.com/bitcoin/bitcoin.git && \
 	cd /bitcoin/bitcoin && \
