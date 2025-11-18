@@ -8,11 +8,17 @@ RUN apt-get -y install apt-utils gcc \
 	patch wamerican ucf manpages \
 	file git luajit make lua5.4 dialog curl \
 	less cowsay netcat-openbsd
+RUN apt-get install -y build-essential cmake pkgconf python3 \
+	libevent-dev libboost-dev libsqlite3-dev
+	
 
 RUN mkdir -p /bitcoin && cd /bitcoin && \
-	git clone --depth 1 https://github.com/bitcoin/bitcoin.git && \
-	cd /bitcoin/bitcoin/depends && make -j $(nproc)  HOST=i686-pc-linux-gnu && cd /bitcoin/bitcoin && \
-	cmake --build build  --toolchain /bitcoin/bitcoin/depends/i686-pc-linux-gnu/toolchain.cmake -j $(nproc) && \
+	git clone --depth 1 https://github.com/bitcoin/bitcoin.git 
+	#cd /bitcoin/bitcoin/depends && make -j $(nproc)  HOST=i686-pc-linux-gnu
+RUN 	cd /bitcoin/bitcoin && \
+	cmake --build build -DENABLE_IPC=OFF -DWITH_QRENCODE=OFF -DBUILD_GUI=OFF \
+	-DCMAKE_CXX_FLAGS="-m32" \
+	--toolchain /bitcoin/bitcoin/depends/i686-pc-linux-gnu/toolchain.cmake -j $(nproc) && \
 	cmake --install build -j5
 
 RUN useradd -m user && echo "user:password" | chpasswd
