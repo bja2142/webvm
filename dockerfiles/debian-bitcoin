@@ -10,11 +10,10 @@ RUN apt-get -y install apt-utils gcc \
 	less cowsay netcat-openbsd
 
 RUN mkdir -p /bitcoin && cd /bitcoin && \
-	git clone https://github.com/bitcoin/bitcoin.git && \
-	cd /bitcoin/bitcoin/depends && make HOST=i686-pc-linux-gnu && \
-	cd .. && \
-	cmake --build build  -DCMAKE_PREFIX_PATH=$PWD/../depends/i686-pc-linux-gnu && \
-	cmake --install build && cd / && rm -r /bitcoin
+	git clone --depth 1 https://github.com/bitcoin/bitcoin.git && \
+	cd /bitcoin/bitcoin/depends && make -j $(nproc)  HOST=i686-pc-linux-gnu && cd /bitcoin/bitcoin && \
+	cmake --build build  --toolchain /bitcoin/bitcoin/depends/i686-pc-linux-gnu/toolchain.cmake -j $(nproc) && \
+	cmake --install build -j5
 
 RUN useradd -m user && echo "user:password" | chpasswd
 #COPY --chown=user:user ./examples /home/user/examples
