@@ -6,17 +6,23 @@ RUN apt-get -y install apt-utils gcc \
 	fakeroot dbus base whiptail hexedit \
 	patch wamerican ucf manpages \
 	file git luajit make lua5.4 dialog curl \
-	less cowsay netcat-openbsd
-RUN apt-get install -y build-essential cmake pkgconf python3 \
-	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto --no-install-recommends && \
+	less cowsay netcat-openbsd && apt-get install -y build-essential cmake pkgconf python3 \
+	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto  && \
 	mkdir -p /bitcoin && cd /bitcoin && \
 	git clone --depth 1 https://github.com/bitcoin/bitcoin.git && \
 	cd /bitcoin/bitcoin && \
 	cmake -B build -S .  -DWITH_QRENCODE=OFF -DBUILD_GUI=OFF -DCMAKE_CXX_FLAGS="-m32" && \
 	cmake --build build -j $(nproc)  && \
 	cmake --install build && \
-	apt-get remove -y cmake build-essential pkgconf && apt-get autoremove -y && \
-	cd / && rm -r /bitcoin
+	cd / && rm -r /bitcoin && \
+	mkdir /tmplibs && \
+	find / -name "*bitcoin*" -type f | egrep -v man1 | while read fn; do ldd $fn; done | grep '/lib/i386-linux-gnu/' | cut -d' ' -f3 | sort | uniq | \
+	while read libfn; do cp $libfn /tmplibs; done ; \
+	apt-get remove -y build-essential cmake pkgconf  \
+	libevent-dev libboost-dev libsqlite3-dev libcapnp-dev capnproto \
+	patch make git unzip && apt-get -y autoremove && \
+	mv /tmplibs/* /lib/i386-linux-gnu/ && rm -r /tmplibs
+
 
 RUN useradd -m user && echo "user:password" | chpasswd
 #COPY --chown=user:user ./examples /home/user/examples
