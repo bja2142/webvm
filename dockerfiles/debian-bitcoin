@@ -18,7 +18,7 @@ RUN mkdir -p /bitcoin && cd /bitcoin && \
 RUN 	cd /bitcoin/bitcoin && \
 	cmake -B build -S .  -DWITH_QRENCODE=OFF -DBUILD_GUI=OFF -DCMAKE_CXX_FLAGS="-m32" && \
 	cmake --build build -j $(nproc)  && \
-	cmake --install build -j5
+	cmake --install build 
 
 RUN useradd -m user && echo "user:password" | chpasswd
 #COPY --chown=user:user ./examples /home/user/examples
