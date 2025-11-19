@@ -1,11 +1,10 @@
-
 FROM --platform=i386 i386/debian:bookworm
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get clean && apt-get update && apt-get -y upgrade && \
-	apt-get -y install apt-utils gcc \
+	apt-get -y install apt-utils gcc screen tmux \
 	python3 vim unzip binutils tcpdump \
 	fakeroot dbus base whiptail hexedit \
-	patch wamerican ucf manpages \
+	patch wamerican ucf manpages procps \
 	file git luajit make lua5.4 dialog curl \
 	less cowsay netcat-openbsd iproute2 iputils-ping && \
 	apt-get install -y build-essential cmake pkgconf \
